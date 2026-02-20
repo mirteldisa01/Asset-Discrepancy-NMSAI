@@ -20,7 +20,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app
 COPY app ./app
-COPY asset-x-120.pt .
 
 # Expose port
 EXPOSE 8000

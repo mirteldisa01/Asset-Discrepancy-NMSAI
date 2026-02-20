@@ -5,7 +5,7 @@ services:
     build: .
     container_name: asset_detection_api
     ports:
-      - "8000:8000"
+      - "8003:8000"
     restart: always
     deploy:
       resources:
