@@ -6,6 +6,9 @@ rename_map = {
     "microwave_dish": "Microwave_Dish"
 }
 
+# ==============================
+# Process Detection Result
+# ==============================
 def process_result(result, model):
     detections = []
     object_count = {}
@@ -30,3 +33,25 @@ def process_result(result, model):
         })
 
     return detections, object_count
+
+
+# ==============================
+# Draw Bounding Boxes on Image
+# ==============================
+def draw_boxes(image, detections):
+    for det in detections:
+        x1, y1, x2, y2 = det["bbox"]
+        label = f'{det["class"]} {det["confidence"]:.2f}'
+
+        # Warna default (BGR)
+        color = (0, 255, 0)
+
+        cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
+
+        # Background label
+        (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
+        cv2.rectangle(image, (x1, y1 - 25), (x1 + w, y1), color, -1)
+        cv2.putText(image, label, (x1, y1 - 5),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+
+    return image

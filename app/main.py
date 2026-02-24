@@ -4,9 +4,10 @@ import numpy as np
 import cv2
 import os
 import requests
+import base64
 
 from app.model import load_model, get_model
-from app.utils import process_result
+from app.utils import process_result, draw_boxes
 
 app = FastAPI(
     title="Asset Detection API",
@@ -15,7 +16,6 @@ app = FastAPI(
 
 MODEL_PATH = "asset-x-120.pt"
 
-# 🔥 GANTI DENGAN LINK RELEASE KAMU
 MODEL_URL = "https://github.com/mirteldisa01/Asset-Discrepancy-NMSAI/releases/download/v1.0.0/asset-x-120.pt"
 
 
@@ -41,7 +41,6 @@ def download_model():
 # ==============================
 @app.on_event("startup")
 def startup_event():
-
     if not os.path.exists(MODEL_PATH):
         download_model()
 
@@ -80,8 +79,20 @@ async def detect(file: UploadFile = File(...)):
 
     detections, object_count = process_result(result, model)
 
+    # ==============================
+    # Draw Bounding Box
+    # ==============================
+    output_image = draw_boxes(img.copy(), detections)
+
+    # ==============================
+    # Encode ke Base64
+    # ==============================
+    _, buffer = cv2.imencode(".jpg", output_image)
+    image_base64 = base64.b64encode(buffer).decode("utf-8")
+
     return JSONResponse({
         "total_objects": sum(object_count.values()),
         "counts": object_count,
-        "detections": detections
+        "detections": detections,
+        "image_base64": image_base64
     })
