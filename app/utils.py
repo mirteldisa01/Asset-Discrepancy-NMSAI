@@ -1,9 +1,21 @@
 import cv2
 
+# ==============================
+# Custom Class Rename
+# ==============================
 rename_map = {
     "rru": "RRU",
     "panel_antenna": "Panel_Antenna",
     "microwave_dish": "Microwave_Dish"
+}
+
+# ==============================
+# Color Mapping (BGR)
+# ==============================
+color_map = {
+    "Panel_Antenna": (139, 0, 0),      # Biru gelap
+    "RRU": (128, 0, 128),              # Ungu gelap
+    "Microwave_Dish": (0, 100, 0)      # Hijau gelap
 }
 
 # ==============================
@@ -36,22 +48,60 @@ def process_result(result, model):
 
 
 # ==============================
-# Draw Bounding Boxes on Image
+# Draw Bounding Boxes
 # ==============================
 def draw_boxes(image, detections):
+
     for det in detections:
         x1, y1, x2, y2 = det["bbox"]
-        label = f'{det["class"]} {det["confidence"]:.2f}'
+        class_name = det["class"]
+        label = f'{class_name} {det["confidence"]:.2f}'
 
-        # Warna default (BGR)
-        color = (0, 255, 0)
+        # Ambil warna sesuai class
+        box_color = color_map.get(class_name, (255, 255, 255))  # default putih
+        text_color = (255, 255, 255)
 
-        cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
+        box_thickness = 5
+        font_scale = 1.2
+        font_thickness = 3
 
-        # Background label
-        (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
-        cv2.rectangle(image, (x1, y1 - 25), (x1 + w, y1), color, -1)
-        cv2.putText(image, label, (x1, y1 - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+        # ===== Draw Bounding Box =====
+        cv2.rectangle(
+            image,
+            (x1, y1),
+            (x2, y2),
+            box_color,
+            box_thickness
+        )
+
+        # ===== Hitung ukuran text =====
+        (text_width, text_height), baseline = cv2.getTextSize(
+            label,
+            cv2.FONT_HERSHEY_SIMPLEX,
+            font_scale,
+            font_thickness
+        )
+
+        y_label = max(y1 - 15, text_height + 10)
+
+        # ===== Background Label =====
+        cv2.rectangle(
+            image,
+            (x1, y_label - text_height - 10),
+            (x1 + text_width + 10, y_label),
+            box_color,
+            -1
+        )
+
+        # ===== Draw Text =====
+        cv2.putText(
+            image,
+            label,
+            (x1 + 5, y_label - 5),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            font_scale,
+            text_color,
+            font_thickness
+        )
 
     return image
