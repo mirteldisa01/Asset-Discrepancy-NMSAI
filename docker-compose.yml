@@ -1,12 +1,7 @@
 services:
-  asset-api:
+  cleanliness-api:
+    container_name: cleanliness-api
     build: .
-    container_name: asset_detection-api
     ports:
-      - "8003:8000"
+      - "8004:8000"
     restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 4G
